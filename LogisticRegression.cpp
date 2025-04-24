@@ -4,18 +4,30 @@
 #include <cmath>
 #include <numeric>
 #include <vector>
-
 using namespace std;
-
 const double WEIGHT_INITIALIZATION_RATE = 0.01;
 
 class LogisticRegression
 {
 public:
-    LogisticRegression(double lr_ = 0.01, int num_of_iterations_ = 100)
+    LogisticRegression(double learning_rate_ = 0.01, int num_of_iterations_ = 100, int fit_intercept_ = true)
     {
-        lr = lr_;
+        learning_rate = learning_rate_;
         num_of_iterations = num_of_iterations_;
+        fit_intercept = fit_intercept_; // Use parameter 'b' or not?
+    }
+
+    vector<double> sigmoid(vector<double> z)
+    {
+        int m = z.size();
+        vector<double> a(m);
+
+        for (int i = 0; i < m; i++)
+        {
+            a[i] = 1 / (1 + exp(-z[i]));
+        }
+
+        return a;
     }
 
     void initializeParameters(int n_x)
@@ -26,29 +38,17 @@ public:
 
         for (int i = 0; i < n_x; i++)
         {
-            parameters[0][i] = (static_cast<double>(rand() % 10)) * WEIGHT_INITIALIZATION_RATE;
+            parameters[0][i] = (rand() % 10) * WEIGHT_INITIALIZATION_RATE;
         }
 
         parameters[1][0] = 0.0;
-    }
-
-    vector<double> sigmoid(vector<double> z)
-    {
-        vector<double> a;
-
-        for (int i = 0; i < z.size(); i++)
-        {
-            a.push_back(1 / (1 + exp(-z[i])));
-        }
-
-        return a;
     }
 
     vector<double> forwardProp(vector<vector<double>> x)
     {
         int m = x.size();
         int n_x = x[0].size();
-        vector<double> z(m, 0.0);
+        vector<double> z(m);
 
         for (int i = 0; i < m; i++)
         {
@@ -56,7 +56,10 @@ public:
             {
                 z[i] += parameters[0][j] * x[i][j];
             }
-            z[i] += parameters[1][0];
+            if (fit_intercept) // Use parameter 'b' or not?
+            {
+                z[i] += parameters[1][0];
+            }
         }
 
         return sigmoid(z);
@@ -68,8 +71,7 @@ public:
         int n_x = parameters[0].size();
         vector<double> a = forwardProp(x);
         vector<double> dz(m);
-        vector<double> dw(n_x, 0);
-        double db = 0;
+        vector<double> dw(n_x);
 
         for (int i = 0; i < m; i++)
         {
@@ -83,11 +85,15 @@ public:
                 dw[i] += (dz[j] * x[j][i]);
             }
             dw[i] /= m;
-            parameters[0][i] -= lr * dw[i];
+            parameters[0][i] -= learning_rate * dw[i];
         }
 
-        db = accumulate(dz.begin(), dz.end(), 0.0) / m;
-        parameters[1][0] -= lr * db;
+        if (fit_intercept) // Use parameter 'b' or not?
+        {
+            double db = 0;
+            db = accumulate(dz.begin(), dz.end(), 0.0) / m;
+            parameters[1][0] -= learning_rate * db;
+        }
     }
 
     void fit(vector<vector<double>> &x, vector<double> &y)
@@ -102,8 +108,9 @@ public:
 
 private:
     vector<vector<double>> parameters;
-    double lr;
+    double learning_rate;
     int num_of_iterations;
+    bool fit_intercept;
 };
 
 int main()
@@ -119,7 +126,7 @@ int main()
         {50.0, 40.0}};
     vector<double> y = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
 
-    LogisticRegression log_reg;
+    LogisticRegression log_reg(0.03, 150, 0); // learning_rate, num_of_iterations, fit_intercept
     log_reg.fit(x, y);
     vector<double> y_hat = log_reg.forwardProp(x);
 
