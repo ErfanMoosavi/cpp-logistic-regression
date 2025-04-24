@@ -10,11 +10,13 @@ const double WEIGHT_INITIALIZATION_RATE = 0.01;
 class LogisticRegression
 {
 public:
-    LogisticRegression(double learning_rate_ = 0.01, int num_of_iterations_ = 100, int fit_intercept_ = true)
+    LogisticRegression(double learning_rate_ = 0.01, int num_of_iterations_ = 100, bool fit_intercept_ = true, bool print_cost_ = false, int cost_print_interval_ = 20)
     {
         learning_rate = learning_rate_;
         num_of_iterations = num_of_iterations_;
         fit_intercept = fit_intercept_; // Use parameter 'b' or not?
+        print_cost = print_cost_;
+        cost_print_interval = cost_print_interval_;
     }
 
     vector<double> sigmoid(vector<double> z)
@@ -65,7 +67,20 @@ public:
         return sigmoid(z);
     }
 
-    void gradientDescent(vector<vector<double>> x, vector<double> y)
+    double computeCost(vector<double> y, vector<double> y_hat)
+    {
+        int m = y.size();
+        double sum = 0;
+
+        for (int i = 0; i < m; i++)
+        {
+            sum += (log(y_hat[i])) * y[i] + (-log(1 - y_hat[i])) * (1 - y[i]);
+        }
+
+        return sum / m;
+    }
+
+    vector<double> gradientDescent(vector<vector<double>> x, vector<double> y)
     {
         int m = x.size();
         int n_x = parameters[0].size();
@@ -94,6 +109,16 @@ public:
             db = accumulate(dz.begin(), dz.end(), 0.0) / m;
             parameters[1][0] -= learning_rate * db;
         }
+
+        return a;
+    }
+
+    void printCost(int i, vector<double> y, vector<double> y_hat)
+    {
+        if (i % cost_print_interval == 0 && print_cost)
+        {
+            cout << "Cost after " << i << "th iteration: " << computeCost(y, y_hat) << endl;
+        }
     }
 
     void fit(vector<vector<double>> &x, vector<double> &y)
@@ -102,7 +127,8 @@ public:
 
         for (int i = 0; i < num_of_iterations; i++)
         {
-            gradientDescent(x, y);
+            vector<double> y_hat = gradientDescent(x, y);
+            printCost(i, y, y_hat);
         }
     }
 
@@ -111,6 +137,8 @@ private:
     double learning_rate;
     int num_of_iterations;
     bool fit_intercept;
+    bool print_cost;
+    int cost_print_interval;
 };
 
 int main()
@@ -126,7 +154,7 @@ int main()
         {50.0, 40.0}};
     vector<double> y = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
 
-    LogisticRegression log_reg(0.03, 150, 0); // learning_rate, num_of_iterations, fit_intercept
+    LogisticRegression log_reg(0.03, 800, true, true, 5); // learning_rate, num_of_iterations, fit_intercept, print_cost, cost_print_interval
     log_reg.fit(x, y);
     vector<double> y_hat = log_reg.forwardProp(x);
 
