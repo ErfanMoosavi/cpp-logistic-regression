@@ -1,10 +1,12 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <algorithm>
 #include <cmath>
 #include <numeric>
 #include <vector>
 using namespace std;
+
 const double WEIGHT_INITIALIZATION_RATE = 0.01;
 
 class LogisticRegression
@@ -14,126 +16,136 @@ public:
     {
         learning_rate = learning_rate_;
         num_of_iterations = num_of_iterations_;
-        fit_intercept = fit_intercept_; // Use parameter 'b' or not?
+        fit_intercept = fit_intercept_;
         print_cost = print_cost_;
         cost_print_interval = cost_print_interval_;
     }
 
-    vector<double> sigmoid(vector<double> z)
+    vector<double> sigmoid(const vector<double> &linear_output)
     {
-        int m = z.size();
-        vector<double> a(m);
+        int num_samples = linear_output.size();
+        vector<double> y_hat(num_samples);
 
-        for (int i = 0; i < m; i++)
+        for (int i = 0; i < num_samples; i++)
         {
-            a[i] = 1 / (1 + exp(-z[i]));
+            y_hat[i] = 1.0 / (1.0 + exp(-linear_output[i]));
         }
 
-        return a;
+        return y_hat;
     }
 
-    void initializeParameters(int n_x)
+    void initializeParameters(const int &num_of_features)
     {
-        parameters.resize(2);
-        parameters[0].resize(n_x);
-        parameters[1].resize(1);
+        weights.resize(num_of_features);
 
-        for (int i = 0; i < n_x; i++)
+        for (int j = 0; j < num_of_features; j++)
         {
-            parameters[0][i] = (rand() % 10) * WEIGHT_INITIALIZATION_RATE;
+            weights[j] = (rand() % 10) * WEIGHT_INITIALIZATION_RATE;
         }
-
-        parameters[1][0] = 0.0;
+        bias = 0.0;
     }
 
-    vector<double> forwardProp(vector<vector<double>> x)
+    vector<double> forwardProp(const vector<vector<double>> &x)
     {
-        int m = x.size();
-        int n_x = x[0].size();
-        vector<double> z(m);
+        int num_samples = x.size();
+        int num_of_features = x[0].size();
+        vector<double> linear_output(num_samples);
 
-        for (int i = 0; i < m; i++)
+        for (int i = 0; i < num_samples; i++)
         {
-            for (int j = 0; j < n_x; j++)
+            for (int j = 0; j < num_of_features; j++)
             {
-                z[i] += parameters[0][j] * x[i][j];
+                linear_output[i] += weights[j] * x[i][j];
             }
-            if (fit_intercept) // Use parameter 'b' or not?
+            if (fit_intercept)
             {
-                z[i] += parameters[1][0];
+                linear_output[i] += bias;
             }
         }
 
-        return sigmoid(z);
+        return sigmoid(linear_output);
     }
 
-    double computeCost(vector<double> y, vector<double> y_hat)
+    double computeLoss(const vector<double> &y, const vector<double> &y_hat)
     {
-        int m = y.size();
+        int num_samples = y.size();
         double sum = 0;
+        double epsilon = 1e-9; // Small value to prevent log(0)
 
-        for (int i = 0; i < m; i++)
+        for (int i = 0; i < num_samples; i++)
         {
-            sum += (log(y_hat[i])) * y[i] + (-log(1 - y_hat[i])) * (1 - y[i]);
+            double y_hat_clipped = max(epsilon, min(1.0 - epsilon, y_hat[i]));
+            sum += y[i] * log(y_hat_clipped) + (1 - y[i]) * log(1 - y_hat_clipped);
         }
 
-        return sum / m;
+        return -sum / num_samples;
     }
 
-    vector<double> gradientDescent(vector<vector<double>> x, vector<double> y)
+    void gradientDescent(const vector<vector<double>> &x, const vector<double> &y)
     {
-        int m = x.size();
-        int n_x = parameters[0].size();
-        vector<double> a = forwardProp(x);
-        vector<double> dz(m);
-        vector<double> dw(n_x);
+        int num_samples = x.size();
+        int num_of_features = weights.size();
+        vector<double> y_hat = forwardProp(x);
+        vector<double> linear_output_gradients(num_samples);
+        vector<double> weight_gradients(num_of_features);
 
-        for (int i = 0; i < m; i++)
+        for (int i = 0; i < num_samples; i++)
         {
-            dz[i] = a[i] - y[i];
+            linear_output_gradients[i] = y_hat[i] - y[i];
         }
 
-        for (int i = 0; i < n_x; i++)
+        for (int j = 0; j < num_of_features; j++)
         {
-            for (int j = 0; j < m; j++)
+            for (int i = 0; i < num_samples; i++)
             {
-                dw[i] += (dz[j] * x[j][i]);
+                weight_gradients[j] += (linear_output_gradients[i] * x[i][j]);
             }
-            dw[i] /= m;
-            parameters[0][i] -= learning_rate * dw[i];
+            weight_gradients[j] /= num_samples;
+            weights[j] -= learning_rate * weight_gradients[j];
         }
 
-        if (fit_intercept) // Use parameter 'b' or not?
+        if (fit_intercept)
         {
-            double db = 0;
-            db = accumulate(dz.begin(), dz.end(), 0.0) / m;
-            parameters[1][0] -= learning_rate * db;
+            double bias_gradient = 0;
+            bias_gradient = accumulate(linear_output_gradients.begin(), linear_output_gradients.end(), 0.0) / num_samples;
+            bias -= learning_rate * bias_gradient;
         }
-
-        return a;
     }
 
-    void printCost(int i, vector<double> y, vector<double> y_hat)
+    void printCost(int i, const vector<double> &y, const vector<double> &y_hat)
     {
         if (i % cost_print_interval == 0 && print_cost)
         {
-            cout << "Cost after " << i << "th iteration: " << computeCost(y, y_hat) << endl;
+            cout << "Cost after " << i << "th iteration: " << computeLoss(y, y_hat) << endl;
         }
     }
 
-    void fit(vector<vector<double>> &x, vector<double> &y)
+    void fit(const vector<vector<double>> &x, const vector<double> &y)
     {
-        initializeParameters(x.size());
+        initializeParameters(x[0].size());
 
         for (int i = 0; i < num_of_iterations; i++)
         {
-            vector<double> y_hat = gradientDescent(x, y);
-            printCost(i, y, y_hat);
+            gradientDescent(x, y);
+            printCost(i, y, forwardProp(x));
         }
     }
 
+    vector<double> predict(const vector<vector<double>> &x)
+    {
+        vector<double> output = forwardProp(x);
+        for_each(output.begin(), output.end(), [](double &p)
+                 { p = p >= 0.5 ? 1 : 0; });
+        return output;
+    }
+
+    vector<double> getCoefficients() { return weights; }
+
+    double getBias() { return bias; }
+
 private:
-    vector<vector<double>> parameters;
+    vector<double> weights;
+    double bias;
     double learning_rate;
     int num_of_iterations;
     bool fit_intercept;
@@ -154,15 +166,26 @@ int main()
         {50.0, 40.0}};
     vector<double> y = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
 
-    LogisticRegression log_reg(0.03, 800, true, true, 5); // learning_rate, num_of_iterations, fit_intercept, print_cost, cost_print_interval
+    // learning_rate, num_of_iterations, fit_intercept, print_cost, cost_print_interval
+    LogisticRegression log_reg(0.02, 800, true, true, 10);
     log_reg.fit(x, y);
-    vector<double> y_hat = log_reg.forwardProp(x);
+    vector<double> y_hat = log_reg.predict(x);
 
-    cout << "Predicted probabilities:" << endl;
+    cout << "Predictions:" << endl;
     for (double prediction : y_hat)
     {
         cout << prediction << endl;
     }
+
+    double bias = log_reg.getBias();
+    cout << "The bias is: " << bias << endl;
+    vector<double> weights = log_reg.getCoefficients();
+    cout << "The weights are: [ ";
+    for (double w : weights)
+    {
+        cout << w << " ";
+    }
+    cout << "]";
 
     return 0;
 }
