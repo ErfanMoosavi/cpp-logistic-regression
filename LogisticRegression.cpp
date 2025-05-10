@@ -13,12 +13,8 @@ class LogisticRegression
 {
 public:
     LogisticRegression(double learning_rate_ = 0.01, int num_of_iterations_ = 100, bool fit_intercept_ = true, bool print_cost_ = false, int cost_print_interval_ = 20)
+        : learning_rate(learning_rate_), num_of_iterations(num_of_iterations_), fit_intercept(fit_intercept_), print_cost(print_cost_), cost_print_interval(cost_print_interval_)
     {
-        learning_rate = learning_rate_;
-        num_of_iterations = num_of_iterations_;
-        fit_intercept = fit_intercept_;
-        print_cost = print_cost_;
-        cost_print_interval = cost_print_interval_;
     }
 
     void fit(const vector<vector<double>> &x, const vector<double> &y)
@@ -31,7 +27,9 @@ public:
 
         initializeParameters(x[0].size());
 
-        for (int i = 0; i < num_of_iterations; i++)
+        cout << "Your Logistic Regression is going to be fitted by your data..." << endl;
+
+        for (int i = 0; i <= num_of_iterations; i++)
         {
             gradientDescent(x, y);
             printCost(i, y, forwardProp(x));
@@ -163,25 +161,48 @@ int main()
 {
     srand(time(0));
 
-    vector<vector<double>> x = {
+    vector<vector<double>> x_train = {
         {2.0, 3.0},
         {1.0, 1.0},
         {2.5, 2.5},
+        {14.5, 30.0},
+        {20.0, 30.0},
         {40.0, 50.0},
         {30.5, 40.5},
         {50.0, 40.0}};
-    vector<double> y = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
+    vector<double> y_train = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
+
+    vector<vector<double>> x_test = {
+        {3.0, 6.0},
+        {40.0, 65.25},
+        {32.12, 11},
+        {10.0, 20.0},
+        {4.0, 20.0},
+        {20.25, 32.0}};
+
+    vector<double> y_test = {0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
 
     // learning_rate, num_of_iterations, fit_intercept, print_cost, cost_print_interval
-    LogisticRegression log_reg(0.02, 800, true, true, 50);
-    log_reg.fit({}, y);
-    vector<double> y_hat = log_reg.predict(x);
+    LogisticRegression log_reg(0.02, 800, true, true, 200);
+    log_reg.fit(x_train, y_train);
+    vector<double> y_hat = log_reg.predict(x_test);
 
-    cout << "Predictions:" << endl;
+    cout << endl
+         << "Actual Outputs: [ ";
+    for (double output : y_test)
+    {
+        cout << output << " ";
+    }
+    cout << "]";
+
+    cout << endl
+         << "Predictions:    [ ";
     for (double prediction : y_hat)
     {
-        cout << prediction << endl;
+        cout << prediction << " ";
     }
+    cout << "]" << endl
+         << endl;
 
     double bias = log_reg.getBias();
     cout << "The bias is: " << bias << endl;
