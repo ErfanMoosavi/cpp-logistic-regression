@@ -21,6 +21,44 @@ public:
         cost_print_interval = cost_print_interval_;
     }
 
+    void fit(const vector<vector<double>> &x, const vector<double> &y)
+    {
+        if (x.empty())
+        {
+            cout << "INVALID INPUT DATA" << endl;
+            return;
+        }
+
+        initializeParameters(x[0].size());
+
+        for (int i = 0; i < num_of_iterations; i++)
+        {
+            gradientDescent(x, y);
+            printCost(i, y, forwardProp(x));
+        }
+    }
+
+    vector<double> predict(const vector<vector<double>> &x)
+    {
+        vector<double> output = forwardProp(x);
+        for_each(output.begin(), output.end(), [](double &p)
+                 { p = p >= 0.5 ? 1 : 0; });
+        return output;
+    }
+
+    vector<double> getCoefficients() { return weights; }
+
+    double getBias() { return bias; }
+
+private:
+    vector<double> weights;
+    double bias;
+    double learning_rate;
+    int num_of_iterations;
+    bool fit_intercept;
+    bool print_cost;
+    int cost_print_interval;
+
     vector<double> sigmoid(const vector<double> &linear_output)
     {
         int num_samples = linear_output.size();
@@ -119,38 +157,6 @@ public:
             cout << "Cost after " << i << "th iteration: " << computeLoss(y, y_hat) << endl;
         }
     }
-
-    void fit(const vector<vector<double>> &x, const vector<double> &y)
-    {
-        initializeParameters(x[0].size());
-
-        for (int i = 0; i < num_of_iterations; i++)
-        {
-            gradientDescent(x, y);
-            printCost(i, y, forwardProp(x));
-        }
-    }
-
-    vector<double> predict(const vector<vector<double>> &x)
-    {
-        vector<double> output = forwardProp(x);
-        for_each(output.begin(), output.end(), [](double &p)
-                 { p = p >= 0.5 ? 1 : 0; });
-        return output;
-    }
-
-    vector<double> getCoefficients() { return weights; }
-
-    double getBias() { return bias; }
-
-private:
-    vector<double> weights;
-    double bias;
-    double learning_rate;
-    int num_of_iterations;
-    bool fit_intercept;
-    bool print_cost;
-    int cost_print_interval;
 };
 
 int main()
@@ -167,8 +173,8 @@ int main()
     vector<double> y = {0.0, 0.0, 0.0, 1.0, 1.0, 1.0};
 
     // learning_rate, num_of_iterations, fit_intercept, print_cost, cost_print_interval
-    LogisticRegression log_reg(0.02, 800, true, true, 10);
-    log_reg.fit(x, y);
+    LogisticRegression log_reg(0.02, 800, true, true, 50);
+    log_reg.fit({}, y);
     vector<double> y_hat = log_reg.predict(x);
 
     cout << "Predictions:" << endl;
