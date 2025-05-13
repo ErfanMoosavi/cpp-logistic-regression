@@ -14,73 +14,12 @@ class Metrics
 public:
     Metrics() : TP(-1.0), TN(-1.0), FP(-1.0), FN(-1.0) {}
 
-    double accuracy()
-        const
-    {
-        if (TP == -1.0)
-        {
-            cerr << "Error: computeConfusionMatrix hasn't been called" << endl;
-            return -1.0;
-        }
-
-        return (TP + TN) / (TP + TN + FP + FN);
-    }
-
-    double precision()
-        const
-    {
-        if (TP == -1.0)
-        {
-            cerr << "Error: computeConfusionMatrix hasn't been called" << endl;
-            return -1.0;
-        }
-
-        if (TP + FP == 0.0)
-            return -1.0;
-
-        return TP / (TP + FP);
-    }
-
-    double recall()
-        const
-    {
-        if (TP == -1.0)
-        {
-            cerr << "Error: computeConfusionMatrix hasn't been called" << endl;
-            return -1.0;
-        }
-
-        if (TP + FN == -1.0)
-            return 0.0;
-
-        return TP / (TP + FN);
-    }
-
-    double f1Score()
-        const
-    {
-        if (TP == -1.0)
-        {
-            cerr << "Error: computeConfusionMatrix hasn't been called" << endl;
-            return -1.0;
-        }
-
-        double prec = precision();
-        double rec = recall();
-        if (prec + rec == 0)
-            return -1.0;
-
-        return 2 * ((prec * rec) / (prec + rec));
-    }
-
     void computeConfusionMatrix(const vector<double> &y, const vector<double> &y_hat)
     {
         if (y.size() != y_hat.size())
         {
-            cerr << "Error: Number of labels in y (" << y.size() << ") does not match the number of labels in y_hat (" << y_hat.size() << ")." << endl;
-            return;
+            throw runtime_error("Error: Input size mismatch");
         }
-
         resetCounts();
 
         int num_samples = y.size();
@@ -100,12 +39,53 @@ public:
         }
     }
 
+    double accuracy()
+    {
+        isConfusionMatrixComputed();
+        return (TP + TN) / (TP + TN + FP + FN);
+    }
+
+    double precision()
+    {
+        isConfusionMatrixComputed();
+        if (TP + FP == 0.0)
+            return -1.0;
+
+        return TP / (TP + FP);
+    }
+
+    double recall()
+    {
+        isConfusionMatrixComputed();
+        if (TP + FN == -1.0)
+            return 0.0;
+
+        return TP / (TP + FN);
+    }
+
+    double f1Score()
+    {
+        isConfusionMatrixComputed();
+        double prec = precision();
+        double rec = recall();
+        if (prec + rec == 0)
+            return -1.0;
+
+        return 2 * ((prec * rec) / (prec + rec));
+    }
+
 private:
     double TP, TN, FP, FN;
 
     void resetCounts()
     {
         TP = TN = FP = FN = 0.0;
+    }
+
+    bool isConfusionMatrixComputed()
+    {
+        if (TP == -1.0)
+            throw runtime_error("Error: computeConfusionMatrix hasn't been called");
     }
 };
 
@@ -129,10 +109,10 @@ public:
             cerr << "Error: Input data (x or y) is empty." << endl;
             return;
         }
+
         if (x.size() != y.size())
         {
-            cerr << "Error: Number of samples in x (" << x.size() << ") does not match the number of labels in y (" << y.size() << ")." << endl;
-            return;
+            throw runtime_error("Error: Input size mismatch");
         }
 
         initializeParameters(x[0].size());
@@ -265,48 +245,29 @@ int main()
 {
     srand(time(0));
 
-    // Feature 1: Number of exclamation marks
-    // Feature 2: Length of email (characters)
     vector<vector<double>> x_train = {
-        // Non-spam examples (y_train = 0.0)
-        {0.0, 250.0},
-        {1.0, 300.0},
-        {0.0, 450.0},
-        {1.0, 500.0},
-        {0.0, 180.0},
-        {0.0, 350.0},
-        // Spam examples (y_train = 1.0)
-        {5.0, 100.0},
-        {8.0, 150.0},
-        {3.0, 80.0},
-        {6.0, 120.0},
-        {4.0, 90.0},
-        {7.0, 130.0}};
-
-    vector<double> y_train = {
-        0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-        1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+        {2.0, 3.0},
+        {1.0, 1.0},
+        {2.5, 2.5},
+        {14.5, 30.0},
+        {20.0, 30.0},
+        {40.0, 50.0},
+        {30.5, 40.5},
+        {50.0, 40.0}};
+    vector<double> y_train = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
 
     vector<vector<double>> x_test = {
-        {2.0, 280.0}, // Likely non-spam
-        {9.0, 70.0},  // Likely spam
-        {1.0, 155.0}, // Could be either, but leaning non-spam
-        {7.0, 110.0}, // Likely spam
-        {0.0, 500.0}, // Likely non-spam
-        {5.0, 140.0}  // Likely spam
-    };
+        {3.0, 6.0},
+        {40.0, 65.25},
+        {32.12, 11},
+        {10.0, 20.0},
+        {4.0, 20.0},
+        {20.25, 32.0}};
 
-    vector<double> y_test = {
-        0.0, // Likely non-spam
-        1.0, // Likely spam
-        0.0, // Leaning non-spam
-        1.0, // Likely spam
-        0.0, // Likely non-spam
-        1.0  // Likely spam
-    };
+    vector<double> y_test = {0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
 
     // learning_rate, num_of_iterations, fit_intercept, print_cost, cost_print_interval
-    LogisticRegression log_reg(0.01, 800, true, true, 100);
+    LogisticRegression log_reg(0.04, 800, true, true, 100);
     log_reg.fit(x_train, y_train);
     vector<double> y_hat = log_reg.predict(x_test);
 
