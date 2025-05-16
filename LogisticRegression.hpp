@@ -22,10 +22,13 @@ public:
 
 private:
     // Private methods
-    double binaryCrossEntropy(const std::vector<double> &y, const std::vector<double> &y_hat);
-    std::vector<double> sigmoid(const std::vector<double> &linear_output);
+    std::vector<double> mean(const std::vector<std::vector<double>> &x);
+    std::vector<double> standardDeviation(const std::vector<std::vector<double>> &x);
+    std::vector<std::vector<double>> standardScaler(const std::vector<std::vector<double>> &x);
     void initializeParameters(const int &num_of_features);
     std::vector<double> forwardProp(const std::vector<std::vector<double>> &x);
+    std::vector<double> sigmoid(const std::vector<double> &linear_output);
+    double binaryCrossEntropy(const std::vector<double> &y, const std::vector<double> &y_hat);
     void gradientDescent(const std::vector<std::vector<double>> &x, const std::vector<double> &y);
     void printCost(int i, const std::vector<double> &y, const std::vector<double> &y_hat);
 
