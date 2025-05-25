@@ -27,13 +27,12 @@ int main()
 
     std::vector<double> y_test = {0.0, 1.0, 0.0, 0.0, 0.0, 1.0};
 
-    // learning_rate, num_of_iterations, fit_intercept, print_cost, cost_print_interval
-    LogisticRegression log_reg(0.04, 800, true, true, 100);
-    
+    // learning_rate, num_of_iterations, fit_intercept, l2, lambda, print_cost, cost_print_interval
+    LogisticRegression log_reg(0.04, 800, true, true, true, 0.3, 100);
+
     log_reg.train(x_train, y_train);
-    
+
     std::vector<double> y_hat = log_reg.predict(x_test);
-            
 
     std::cout << std::endl
               << "Actual Outputs: [ ";

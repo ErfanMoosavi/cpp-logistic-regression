@@ -1,14 +1,12 @@
 #include "LogisticRegression.hpp"
 
-const double WEIGHT_INITIALIZATION_RATE = 0.01;
-
 LogisticRegression::LogisticRegression()
-    : learning_rate(0.01), num_of_iterations(100), fit_intercept(true), print_cost(false), cost_print_interval(20)
+    : learning_rate(0.01), num_of_iterations(100), fit_intercept(true), l2(false), lambda(0.1), print_cost(false), cost_print_interval(20)
 {
 }
 
-LogisticRegression::LogisticRegression(double learning_rate_, int num_of_iterations_, bool fit_intercept_, bool print_cost_, int cost_print_interval_)
-    : learning_rate(learning_rate_), num_of_iterations(num_of_iterations_), fit_intercept(fit_intercept_), print_cost(print_cost_), cost_print_interval(cost_print_interval_)
+LogisticRegression::LogisticRegression(double learning_rate_, int num_of_iterations_, bool fit_intercept_, bool l2_, double lambda_, bool print_cost_, int cost_print_interval_)
+    : learning_rate(learning_rate_), num_of_iterations(num_of_iterations_), fit_intercept(fit_intercept_), l2(l2_), lambda(lambda_), print_cost(print_cost_), cost_print_interval(cost_print_interval_)
 {
 }
 
@@ -60,6 +58,7 @@ void LogisticRegression::initializeParameters(const int &num_of_features)
     bias = 0.0;
 }
 std::vector<double> LogisticRegression::mean(const std::vector<std::vector<double>> &x)
+    const
 {
     int num_samples = x.size();
     int num_features = x[0].size();
@@ -77,6 +76,7 @@ std::vector<double> LogisticRegression::mean(const std::vector<std::vector<doubl
 }
 
 std::vector<double> LogisticRegression::standardDeviation(const std::vector<std::vector<double>> &x)
+    const
 {
     int num_samples = x.size();
     int num_features = x[0].size();
@@ -96,6 +96,7 @@ std::vector<double> LogisticRegression::standardDeviation(const std::vector<std:
 }
 
 std::vector<std::vector<double>> LogisticRegression::standardScaler(const std::vector<std::vector<double>> &x)
+    const
 {
     int num_samples = x.size();
     int num_features = x[0].size();
@@ -124,6 +125,7 @@ std::vector<std::vector<double>> LogisticRegression::standardScaler(const std::v
 }
 
 std::vector<double> LogisticRegression::forwardProp(const std::vector<std::vector<double>> &x)
+    const
 {
     int num_samples = x.size();
     int num_of_features = x[0].size();
@@ -143,6 +145,7 @@ std::vector<double> LogisticRegression::forwardProp(const std::vector<std::vecto
 }
 
 std::vector<double> LogisticRegression::sigmoid(const std::vector<double> &linear_output)
+    const
 {
     int num_samples = linear_output.size();
     std::vector<double> y_hat(num_samples);
@@ -155,19 +158,29 @@ std::vector<double> LogisticRegression::sigmoid(const std::vector<double> &linea
     return y_hat;
 }
 
-double LogisticRegression::binaryCrossEntropy(const std::vector<double> &y, const std::vector<double> &y_hat)
+double LogisticRegression::binaryCrossEntropy(const std::vector<double> &y, const std::vector<double> &y_hat) const
 {
     int num_samples = y.size();
-    double sum = 0.0;
-    double epsilon = 1e-9; // Small value to prevent log(0)
+    double cross_entropy_loss = 0.0;
 
     for (int i = 0; i < num_samples; i++)
     {
-        double y_hat_clipped = std::max(epsilon, std::min(1.0 - epsilon, y_hat[i]));
-        sum += y[i] * log(y_hat_clipped) + (1 - y[i]) * log(1 - y_hat_clipped);
+        double y_hat_clipped = std::max(EPSILON, std::min(1.0 - EPSILON, y_hat[i]));
+        cross_entropy_loss += y[i] * log(y_hat_clipped) + (1 - y[i]) * log(1 - y_hat_clipped);
     }
+    cross_entropy_loss = -cross_entropy_loss / num_samples;
 
-    return -sum / num_samples;
+    if (l2)
+    {
+        double l2_penalty = 0.0;
+        for (double w : weights)
+        {
+            l2_penalty += pow(w, 2);
+        }
+        l2_penalty = (lambda / (2 * num_samples)) * l2_penalty;
+        cross_entropy_loss += l2_penalty;
+    }
+    return cross_entropy_loss;
 }
 
 void LogisticRegression::gradientDescent(const std::vector<std::vector<double>> &x, const std::vector<double> &y)
@@ -190,6 +203,10 @@ void LogisticRegression::gradientDescent(const std::vector<std::vector<double>> 
             weight_gradients[j] += (linear_output_gradients[i] * x[i][j]);
         }
         weight_gradients[j] /= num_samples;
+
+        if (l2)
+            weight_gradients[j] += (lambda / num_samples) * weights[j];
+
         weights[j] -= learning_rate * weight_gradients[j];
     }
 
@@ -202,6 +219,7 @@ void LogisticRegression::gradientDescent(const std::vector<std::vector<double>> 
 }
 
 void LogisticRegression::printCost(int i, const std::vector<double> &y, const std::vector<double> &y_hat)
+    const
 {
     if (print_cost && i % cost_print_interval == 0)
         std::cout << "Cost after " << i << "th iteration: " << binaryCrossEntropy(y, y_hat) << std::endl;
