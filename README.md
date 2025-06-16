@@ -31,6 +31,33 @@ This project is a C++ implementation of logistic regression using the Eigen libr
 - **Eigen** — Matrix and vector operations for numerical computation
 - **Custom CSV Parser** — Reads and parses CSV data into Eigen matrices
 
+## Dependencies
+
+- [Eigen 3](https://eigen.tuxfamily.org/) (Header-only C++ template library for linear algebra)
+
+### How to Install Eigen
+
+- **Option 1:** Install system-wide using a package manager
+
+  **Ubuntu/Debian**
+  ```bash
+  sudo apt install libeigen3-dev
+  ```
+
+  **macOS (Homebrew)**
+  ```bash
+  brew install eigen
+  ```
+
+- **Option 2:** Download manually
+
+  - Download from: https://eigen.tuxfamily.org/
+  - Extract the folder and place it somewhere accessible
+  - Include it in your build commands, e.g.:
+    ```bash
+    g++ -I /path/to/eigen main.cpp -o my_program
+    ```
+
 ## System Architecture
 
 - `LogisticRegression` class:
