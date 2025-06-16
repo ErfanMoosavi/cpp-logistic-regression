@@ -5,7 +5,7 @@ CXXFLAGS := -Wall -Wextra -std=c++17 -O2 -Isrc -IEigen
 # Folders
 SRC_DIR := src
 BUILD_DIR := Build
-BIN := logistic_regression.exe
+BIN := log_reg.exe
 
 # Files
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
