@@ -1,0 +1,8 @@
+Logistic Regression Results:
+Accuracy: 0.801471
+F1 Score: 0.747664
+
+Decision Tree Results:
+Accuracy: 0.823529
+F1 Score: 0.744681
+

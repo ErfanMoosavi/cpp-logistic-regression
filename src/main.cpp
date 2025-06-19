@@ -8,7 +8,7 @@ int main(int, char **argv)
     string y_train_path = argv[2];
     string x_test_path = argv[3];
     string y_test_path = argv[4];
-
+ 
     DataHandler data_handler;
     data_handler.loadCSV(x_train_path, X_TRAIN);
     data_handler.loadCSV(y_train_path, Y_TRAIN);
@@ -16,14 +16,18 @@ int main(int, char **argv)
     data_handler.loadCSV(y_test_path, Y_TEST);
 
     // learning_rate, num_of_iterations, fit_intercept, l2, lambda, print_cost, cost_print_interval
-    LogisticRegression log_reg(&data_handler, 0.01, 800, true, true, 0.3, true, 80);
-    
+    LogisticRegression log_reg(&data_handler, 0.03, 1000, true, false, 0, true, 100);
     log_reg.train();
     log_reg.predict();
-    Eigen::MatrixXd predictions = log_reg.getPredictions();
 
-    cout << "Predictions:\n" << predictions.transpose() << "\n";
-    cout << "Accuracy: " << log_reg.accuracy() << "\n";
-    cout << "F1 Score: " << log_reg.f1Score() << "\n";
+    // Write results into results.txt file
+    ofstream out_file;
+    out_file.open("evaluation_results.txt", ios::app);
+    out_file << "Logistic Regression Results:" << "\n";
+    out_file << "Accuracy: " << log_reg.accuracy() << "\n";
+    out_file << "F1 Score: " << log_reg.f1Score() << "\n\n";
+    out_file.close();
+
+    cout << "Done! You can see the results in evaluation_results.txt\n";
     return 0;
 }
