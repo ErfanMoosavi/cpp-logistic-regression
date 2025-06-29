@@ -28,20 +28,42 @@ void DataHandler::loadCSV(const string &path, const string &type)
         for (size_t j = 0; j < cols; ++j)
             mat(i, j) = values[i][j];
 
-if (type == "x_train")
-    x_train = mat;
-else if (type == "y_train")
-    y_train = mat.col(0);
-else if (type == "x_test")
-    x_test = mat;
-else if (type == "y_test")
-    y_test = mat.col(0);
+    if (type == "x_train")
+        x_train = mat;
+    else if (type == "y_train")
+        y_train = mat.col(0);
+    else if (type == "x_test")
+        x_test = mat;
+    else if (type == "y_test")
+        y_test = mat.col(0);
 }
 
-const Eigen::MatrixXd& DataHandler::getXTrain() { return x_train; }
-const Eigen::MatrixXd& DataHandler::getYTrain() { return y_train; }
-const Eigen::MatrixXd& DataHandler::getXTest() { return x_test; }
-const Eigen::MatrixXd& DataHandler::getYTest() { return y_test; }
-const Eigen::MatrixXd& DataHandler::getPreds() { return preds; }
+void DataHandler::saveCSV(const string &path, const Eigen::MatrixXd &mat)
+{
+    ofstream file(path);
+    if (!file.is_open())
+    {
+        throw runtime_error("Could not open file to write predictions: " + path);
+    }
+
+    for (int i = 0; i < mat.rows(); ++i)
+    {
+        for (int j = 0; j < mat.cols(); ++j)
+        {
+            file << mat(i, j);
+            if (j < mat.cols() - 1)
+                file << ",";
+        }
+        file << "\n";
+    }
+
+    file.close();
+}
+
+const Eigen::MatrixXd &DataHandler::getXTrain() { return x_train; }
+const Eigen::MatrixXd &DataHandler::getYTrain() { return y_train; }
+const Eigen::MatrixXd &DataHandler::getXTest() { return x_test; }
+const Eigen::MatrixXd &DataHandler::getYTest() { return y_test; }
+const Eigen::MatrixXd &DataHandler::getPreds() { return preds; }
 void DataHandler::setYTest(Eigen::MatrixXd y_test_) { y_test = y_test_; }
 void DataHandler::setPreds(Eigen::MatrixXd preds_) { preds = preds_; }

@@ -13,11 +13,12 @@ class DataHandler
 {
 public:
     void loadCSV(const string &path, const string &type);
-    const Eigen::MatrixXd& getXTrain();
-    const Eigen::MatrixXd& getYTrain();
-    const Eigen::MatrixXd& getXTest();
-    const Eigen::MatrixXd& getYTest();
-    const Eigen::MatrixXd& getPreds();
+    void saveCSV(const string &path, const Eigen::MatrixXd &mat);
+    const Eigen::MatrixXd &getXTrain();
+    const Eigen::MatrixXd &getYTrain();
+    const Eigen::MatrixXd &getXTest();
+    const Eigen::MatrixXd &getYTest();
+    const Eigen::MatrixXd &getPreds();
     void setYTest(Eigen::MatrixXd y_test_);
     void setPreds(Eigen::MatrixXd preds_);
 

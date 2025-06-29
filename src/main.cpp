@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
     cxxopts::Options options("LogisticRegression", "Train a logistic regression model from the command line");
 
-    options.add_options()("x_train", "Path to X train CSV", cxxopts::value<string>())("y_train", "Path to Y train CSV", cxxopts::value<string>())("x_test", "Path to X test CSV", cxxopts::value<string>())("y_test", "Path to Y test CSV", cxxopts::value<string>())("lr", "Learning rate", cxxopts::value<double>()->default_value("0.01"))("epochs", "Number of iterations", cxxopts::value<int>()->default_value("100"))("fit_intercept", "Fit intercept", cxxopts::value<bool>()->default_value("true"))("l2", "Use L2 regularization", cxxopts::value<bool>()->default_value("false"))("lambda", "L2 regularization strength", cxxopts::value<double>()->default_value("0.1"))("print_cost", "Print cost per interval", cxxopts::value<bool>()->default_value("false"))("cost_interval", "Cost print interval", cxxopts::value<int>()->default_value("20"))("help", "Print usage");
+    options.add_options()("x_train", "Path to X train CSV", cxxopts::value<string>())("y_train", "Path to Y train CSV", cxxopts::value<string>())("x_test", "Path to X test CSV", cxxopts::value<string>())("y_test", "Path to Y test CSV", cxxopts::value<string>())("lr", "Learning rate", cxxopts::value<double>()->default_value("0.01"))("epochs", "Number of iterations", cxxopts::value<int>()->default_value("100"))("fit_intercept", "Fit intercept", cxxopts::value<bool>()->default_value("true"))("l2", "Use L2 regularization", cxxopts::value<bool>()->default_value("false")->implicit_value("true"))("lambda", "L2 regularization strength", cxxopts::value<double>()->default_value("0.1"))("print_cost", "Print cost during training", cxxopts::value<bool>()->default_value("false")->implicit_value("true"))("cost_interval", "Cost print interval", cxxopts::value<int>()->default_value("20"))("output", "Path to save predictions as CSV", cxxopts::value<string>())("help", "Print usage");
 
     auto result = options.parse(argc, argv);
 
@@ -41,6 +41,13 @@ int main(int argc, char *argv[])
     cout << "Precision: " << model.precision() << endl;
     cout << "Recall: " << model.recall() << endl;
     cout << "F1 Score: " << model.f1Score() << endl;
+
+    if (result.count("output"))
+    {
+        string output_path = result["output"].as<string>();
+        data_handler.saveCSV(output_path, model.getPredictions());
+        cout << "Predictions saved to " << output_path << endl;
+    }
 
     return 0;
 }

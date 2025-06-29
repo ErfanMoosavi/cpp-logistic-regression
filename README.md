@@ -20,6 +20,7 @@ This project is a C++ implementation of **logistic regression** using the **Eige
 
 ### Data Handling
 - Load CSV files directly (train/test sets)
+- Save CSV output file (preds.css)
 - Standardization (Z-score normalization)
 - Handles header skipping automatically
 
@@ -92,9 +93,9 @@ Run the program from the command line like this:
 
 ```bash
 log_reg.exe --x_train=Dataset/x_train.csv --y_train=Dataset/y_train.csv ^
-            --x_test=Dataset/x_test.csv --y_test=Dataset/y_test.csv ^
-            --lr=0.05 --epochs=200 --fit_intercept=true ^
-            --l2=false --lambda=0.1 --print_cost=true --cost_interval=10
+--x_test=Dataset/x_test.csv --y_test=Dataset/y_test.csv ^
+--lr=0.05 --epochs=200 --fit_intercept=true --l2=false ^
+--print_cost=true --cost_interval=20 --output=predictions.csv
 ```
 
 > On PowerShell, replace `^` with backticks ` for line continuation.
@@ -116,6 +117,7 @@ log_reg.exe --x_train=Dataset/x_train.csv --y_train=Dataset/y_train.csv ^
 | `--lambda`        | L2 regularization strength                | `0.1`      |
 | `--print_cost`    | Print cost during training                | `false`    |
 | `--cost_interval` | Interval to print cost                    | `20`       |
+| `--output`        | 	Save predictions to CSV file            | `20`       |
 
 ---
 
@@ -140,15 +142,8 @@ log_reg.exe --x_train=Dataset/x_train.csv --y_train=Dataset/y_train.csv ^
   - Precision
   - Recall
   - F1 Score
-
----
-
-## Future Ideas
-
-- Save predictions to CSV
-- Support for multiclass classification
-- Model saving/loading
-- Web or GUI frontend
+- Evaluation metrics are printed after prediction.
+- If --output is specified, predictions are saved to the provided CSV file.
 
 ---
 

@@ -22,7 +22,7 @@ $(BIN): $(OBJ)
 
 # Compile .cpp files into Build/*.o
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
-	-@mkdir $(BUILD_DIR) > NUL 2>&1
+	@if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Clean target
