@@ -1,31 +1,33 @@
 # Compiler and flags
 CXX := g++
-CXXFLAGS := -Wall -Wextra -std=c++17 -O2 -Isrc -IEigen
+CXXFLAGS := -Wall -Wextra -std=c++17 -O2 -Isrc -IEigen -Iinclude
 
 # Folders
 SRC_DIR := src
+INCLUDE_DIR := Include
 BUILD_DIR := Build
 BIN := log_reg.exe
 
 # Files
 SRC := $(wildcard $(SRC_DIR)/*.cpp)
 OBJ := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SRC))
-HEADERS := $(wildcard $(SRC_DIR)/*.hpp)
+HEADERS := $(wildcard $(SRC_DIR)/*.hpp) $(wildcard $(INCLUDE_DIR)/*.hpp)
 
 # Default target
 all: $(BIN)
 
-# Link object files to final binary
+# Link object files to produce the binary
 $(BIN): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-# Compile source files into object files inside build/
+# Compile .cpp files into Build/*.o
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
-	@if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
+	-@mkdir $(BUILD_DIR) > NUL 2>&1
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Clean
+# Clean target
 clean:
-	rm -rf $(BUILD_DIR) $(BIN)
+	@if exist $(BUILD_DIR) rmdir /s /q $(BUILD_DIR)
+	@if exist $(BIN) del $(BIN)
 
 .PHONY: all clean

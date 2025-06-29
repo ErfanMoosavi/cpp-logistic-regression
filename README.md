@@ -1,130 +1,164 @@
-# Logistic Regression from Scratch
+# Logistic Regression from Scratch in C++
 
-This project is a C++ implementation of logistic regression using the Eigen library for matrix operations. It supports binary classification, CSV-based data loading, evaluation metrics, and feature normalization. The system is modular and scalable, designed with future extensibility in mind.
+This project is a C++ implementation of **logistic regression** using the **Eigen** library for matrix operations. It is a complete, modular system for binary classification tasks, with a command-line interface for configurable usage.
+
+---
 
 ## Features
 
-- **Logistic Regression Model**
-  - Implements binary logistic regression from scratch
-  - Configurable learning rate, number of iterations, and regularization
-  - Supports optional L2 regularization
+### Model
+- Implements binary logistic regression from scratch
+- Configurable learning rate, number of iterations
+- Optional L2 regularization
+- Fit bias/intercept toggle
 
-- **Data Handling**
-  - Loads training and test data directly from CSV files
-  - Separates feature matrices and label vectors
-  - Normalizes data using standard score (z-score) scaling
+### Evaluation Metrics
+- Accuracy
+- Precision
+- Recall
+- F1 Score
 
-- **Model Evaluation**
-  - Evaluates predictions using:
-    - Accuracy
-    - Precision
-    - Recall
-    - F1 Score
+### Data Handling
+- Load CSV files directly (train/test sets)
+- Standardization (Z-score normalization)
+- Handles header skipping automatically
 
-- **Training Feedback**
-  - Tracks cost (loss) during training
-  - Configurable interval-based printing of training cost
+### Training Feedback
+- Cost (loss) printed during training
+- Customizable cost display interval
+
+---
 
 ## Technologies Used
 
-- **C++** — Core model implementation, logic, and optimization
-- **Eigen** — Matrix and vector operations for numerical computation
-- **Custom CSV Parser** — Reads and parses CSV data into Eigen matrices
+- C++17 — Core language
+- Eigen 3 — Linear algebra operations (matrix math)
+- cxxopts — Command-line argument parsing
 
-## Dependencies
+---
 
-- [Eigen 3](https://eigen.tuxfamily.org/) (Header-only C++ template library for linear algebra)
+## Project Structure
 
-### How to Install Eigen
+```
+/ProjectRoot
+├── src/
+│   ├── main.cpp
+│   ├── logistic_regression.cpp
+│   └── data_handler.cpp
+├── include/
+│   └── cxxopts.hpp
+├── Eigen/
+│   └── (Eigen headers)
+├── Dataset/
+│   ├── x_train.csv
+│   ├── y_train.csv
+│   ├── x_test.csv
+│   └── y_test.csv
+├── Build/
+│   └── (generated object files)
+├── Makefile
+└── README.md
+```
 
-- **Option 1:** Install system-wide using a package manager
+---
 
-  **Ubuntu/Debian**
-  ```bash
-  sudo apt install libeigen3-dev
-  ```
+## Build Instructions (Windows)
 
-  **macOS (Homebrew)**
-  ```bash
-  brew install eigen
-  ```
+### Prerequisites
+- MinGW with `mingw32-make` and `g++`
+- Eigen (downloaded or system-installed)
 
-- **Option 2:** Download manually
+### Build the Project
 
-  - Download from: https://eigen.tuxfamily.org/
-  - Extract the folder and place it somewhere accessible
-  - Include it in your build commands, e.g.:
-    ```bash
-    g++ -I /path/to/eigen main.cpp -o my_program
-    ```
+Open Command Prompt in the project folder:
 
-## System Architecture
+```bash
+mingw32-make
+```
 
-- `LogisticRegression` class:
-  - Encapsulates all model logic: training, predicting, evaluation, etc.
-  - Includes gradient descent, forward propagation, and sigmoid activation
-  - Supports regularization and cost tracking
+This builds `log_reg.exe` in the project root.
 
-- `DataHandler` class:
-  - Responsible for reading CSV data and managing feature/label separation
-  - Provides accessors for training and testing data
+To clean up build files:
 
-- `Metrics` class:
-  - Calculates confusion matrix and derived evaluation metrics
-  - Used after prediction for model performance measurement
+```bash
+mingw32-make clean
+```
 
-## Usage Overview
+---
 
-1. **Prepare Your CSV Files**
-   - Format: Each row = one sample; each column = one feature (except label in `y_*.csv`)
-   - Ensure no malformed or non-numeric values
-   - First line (header) will be skipped automatically
+## How to Run the Program
 
-2. **Load the Data**
-   - Use the `DataHandler` to load CSVs:
+Run the program from the command line like this:
 
-   ```cpp
-   DataHandler dh;
-   dh.loadCSV("data/x_train.csv", "x_train");
-   dh.loadCSV("data/y_train.csv", "y_train");
-   dh.loadCSV("data/x_test.csv", "x_test");
-   dh.loadCSV("data/y_test.csv", "y_test");
-   ```
+```bash
+log_reg.exe --x_train=Dataset/x_train.csv --y_train=Dataset/y_train.csv ^
+            --x_test=Dataset/x_test.csv --y_test=Dataset/y_test.csv ^
+            --lr=0.05 --epochs=200 --fit_intercept=true ^
+            --l2=false --lambda=0.1 --print_cost=true --cost_interval=10
+```
 
-3. **Train and Predict**
-   - Create the model and train:
+> On PowerShell, replace `^` with backticks ` for line continuation.
 
-   ```cpp
-   LogisticRegression model(&dh, 0.05, 200, true, true, 0.1, true, 10);
-   model.train();
-   model.predict();
-   ```
+---
 
-4. **Evaluate Results**
-   - After predictions:
+## CLI Options
 
-   ```cpp
-   std::cout << "Accuracy: " << model.accuracy() << std::endl;
-   std::cout << "Precision: " << model.precision() << std::endl;
-   std::cout << "Recall: " << model.recall() << std::endl;
-   std::cout << "F1 Score: " << model.f1Score() << std::endl;
-   ```
+| Flag              | Description                               | Default    |
+|------------------|-------------------------------------------|------------|
+| `--x_train`       | Path to training features CSV              | Required   |
+| `--y_train`       | Path to training labels CSV                | Required   |
+| `--x_test`        | Path to test features CSV                  | Required   |
+| `--y_test`        | Path to test labels CSV                    | Required   |
+| `--lr`            | Learning rate                             | `0.01`     |
+| `--epochs`        | Number of iterations                      | `100`      |
+| `--fit_intercept` | Whether to learn a bias term              | `true`     |
+| `--l2`            | Enable L2 regularization                  | `false`    |
+| `--lambda`        | L2 regularization strength                | `0.1`      |
+| `--print_cost`    | Print cost during training                | `false`    |
+| `--cost_interval` | Interval to print cost                    | `20`       |
+
+---
 
 ## Input Format
 
-- **CSV File Types**
-  - `x_train.csv` — Feature matrix for training (M × N)
+- CSV Format: Each row = 1 sample, columns = features (or label)
+- Files Needed:
+  - `x_train.csv` — Features for training (M × N)
   - `y_train.csv` — Labels for training (M × 1)
-  - `x_test.csv` — Feature matrix for testing (K × N)
-  - `y_test.csv` — Labels for testing (K × 1)
+  - `x_test.csv`  — Features for testing (K × N)
+  - `y_test.csv`  — Labels for testing (K × 1)
 
-- **Note:** The program assumes rows are samples and columns are features (standard ML convention)
+> The first row (headers) will be skipped automatically.
 
-## Output Design
+---
 
-- **Training Logs:**
-  - Prints cost at specified intervals during training
-- **Metric Output:**
-  - Evaluation metrics are printed to the console after prediction
-- **Modular Design:**
-  - Easily extendable for multiclass classification, new evaluation metrics, or additional input formats
+## Output
+
+- Training cost is printed every N epochs (if enabled)
+- Final evaluation metrics printed after prediction:
+  - Accuracy
+  - Precision
+  - Recall
+  - F1 Score
+
+---
+
+## Future Ideas
+
+- Save predictions to CSV
+- Support for multiclass classification
+- Model saving/loading
+- Web or GUI frontend
+
+---
+
+## Author
+
+**Erfan Moosavi**  
+Student of Computer Engineering — passionate about AI, NLP, and philosophical thinking.
+
+GitHub: [@ErfanMoosavi](https://github.com/ErfanMoosavi)
+
+---
+
+Feel free to fork, star, or contribute!
