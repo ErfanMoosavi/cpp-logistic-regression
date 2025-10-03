@@ -1,44 +1,49 @@
-# Logistic Regression from Scratch in C++
+# Logistic Regression from Scratch in C++  
 
-This project is a C++ implementation of **logistic regression** using the **Eigen** library for matrix operations. It is a complete, modular system for binary classification tasks, with a command-line interface for configurable usage.
+## 📌 Overview  
 
----
-
-## Features
-
-### Model
-- Implements binary logistic regression from scratch
-- Configurable learning rate, number of iterations
-- Optional L2 regularization
-- Fit bias/intercept toggle
-
-### Evaluation Metrics
-- Accuracy
-- Precision
-- Recall
-- F1 Score
-
-### Data Handling
-- Load CSV files directly (train/test sets)
-- Save CSV output file (preds.css)
-- Standardization (Z-score normalization)
-- Handles header skipping automatically
-
-### Training Feedback
-- Cost (loss) printed during training
-- Customizable cost display interval
+**Logistic Regression from Scratch in C++** is a complete, modular implementation of **binary logistic regression** using the **Eigen** library for matrix operations.  
+It provides a **command-line interface** for flexible configuration and outputs detailed evaluation metrics, making it suitable for hands-on learning and small-scale classification projects.  
 
 ---
 
-## Technologies Used
+## ✨ Features  
 
-- C++17 — Core language
-- Eigen 3 — Linear algebra operations (matrix math)
-- cxxopts — Command-line argument parsing
+This project brings a full logistic regression pipeline, implemented entirely from scratch:  
+
+- **Model**  
+  - Binary logistic regression  
+  - Configurable learning rate & epochs  
+  - Optional **L2 regularization**  
+  - Toggle for intercept/bias term  
+
+- **Evaluation Metrics**  
+  - Accuracy  
+  - Precision  
+  - Recall  
+  - F1 Score  
+
+- **Data Handling**  
+  - Direct CSV loading (train/test sets)  
+  - Automatic header skipping  
+  - Standardization (Z-score normalization)  
+  - Save predictions to CSV  
+
+- **Training Feedback**  
+  - Cost printed during training  
+  - Adjustable cost display interval  
 
 ---
 
-## Project Structure
+## ⚙️ Technologies Used  
+
+- **C++17** — Core language  
+- **Eigen 3** — Matrix and linear algebra operations  
+- **cxxopts** — Command-line argument parsing  
+
+---
+
+## 🗂 Project Structure  
 
 ```
 /ProjectRoot
@@ -63,23 +68,21 @@ This project is a C++ implementation of **logistic regression** using the **Eige
 
 ---
 
-## Build Instructions (Windows)
+## 🛠️ Build Instructions (Windows)  
 
-### Prerequisites
-- MinGW with `mingw32-make` and `g++`
-- Eigen (downloaded or system-installed)
+### Prerequisites  
+- MinGW with `mingw32-make` and `g++`  
+- Eigen (downloaded or system-installed)  
 
-### Build the Project
-
-Open Command Prompt in the project folder:
+### Build the Project  
 
 ```bash
 mingw32-make
 ```
 
-This builds `log_reg.exe` in the project root.
+This produces `log_reg.exe` in the project root.  
 
-To clean up build files:
+To clean build files:  
 
 ```bash
 mingw32-make clean
@@ -87,9 +90,9 @@ mingw32-make clean
 
 ---
 
-## How to Run the Program
+## 🚀 How to Run  
 
-Run the program from the command line like this:
+Run the program from the command line:  
 
 ```bash
 log_reg.exe --x_train=Dataset/x_train.csv --y_train=Dataset/y_train.csv ^
@@ -98,14 +101,14 @@ log_reg.exe --x_train=Dataset/x_train.csv --y_train=Dataset/y_train.csv ^
 --print_cost=true --cost_interval=20 --output=predictions.csv
 ```
 
-> On PowerShell, replace `^` with backticks ` for line continuation.
+> ⚠️ On PowerShell, replace `^` with backticks `` for line continuation.  
 
 ---
 
-## CLI Options
+## ⚡ CLI Options  
 
 | Flag              | Description                               | Default    |
-|------------------|-------------------------------------------|------------|
+|-------------------|-------------------------------------------|------------|
 | `--x_train`       | Path to training features CSV              | Required   |
 | `--y_train`       | Path to training labels CSV                | Required   |
 | `--x_test`        | Path to test features CSV                  | Required   |
@@ -117,43 +120,44 @@ log_reg.exe --x_train=Dataset/x_train.csv --y_train=Dataset/y_train.csv ^
 | `--lambda`        | L2 regularization strength                | `0.1`      |
 | `--print_cost`    | Print cost during training                | `false`    |
 | `--cost_interval` | Interval to print cost                    | `20`       |
-| `--output`        | 	Save predictions to CSV file            | `20`       |
+| `--output`        | Save predictions to CSV file              | None       |
 
 ---
 
-## Input Format
+## 📥 Input Format  
 
-- CSV Format: Each row = 1 sample, columns = features (or label)
-- Files Needed:
-  - `x_train.csv` — Features for training (M × N)
-  - `y_train.csv` — Labels for training (M × 1)
-  - `x_test.csv`  — Features for testing (K × N)
-  - `y_test.csv`  — Labels for testing (K × 1)
+- **CSV format** → Each row = 1 sample, columns = features (or label)  
+- Required files:  
+  - `x_train.csv` — Training features (M × N)  
+  - `y_train.csv` — Training labels (M × 1)  
+  - `x_test.csv`  — Testing features (K × N)  
+  - `y_test.csv`  — Testing labels (K × 1)  
 
-> The first row (headers) will be skipped automatically.
-
----
-
-## Output
-
-- Training cost is printed every N epochs (if enabled)
-- Final evaluation metrics printed after prediction:
-  - Accuracy
-  - Precision
-  - Recall
-  - F1 Score
-- Evaluation metrics are printed after prediction.
-- If --output is specified, predictions are saved to the provided CSV file.
+> Headers are skipped automatically.  
 
 ---
 
-## Author
+## 📊 Output  
+
+- Training cost printed every *N* epochs (if enabled)  
+- Final evaluation metrics:  
+  - Accuracy  
+  - Precision  
+  - Recall  
+  - F1 Score  
+- Predictions optionally saved to CSV via `--output`  
+
+---
+
+## 👨‍💻 Author  
 
 **Erfan Moosavi**  
-Student of Computer Engineering — passionate about AI, NLP, and philosophical thinking.
+Student of Computer Engineering — passionate about AI, NLP, and philosophy.  
 
-GitHub: [@ErfanMoosavi](https://github.com/ErfanMoosavi)
+GitHub → [@ErfanMoosavi](https://github.com/ErfanMoosavi)  
 
 ---
 
-Feel free to fork, star, or contribute!
+## 📜 License  
+
+This project is licensed under the MIT License — feel free to fork, star ⭐, and contribute!  
